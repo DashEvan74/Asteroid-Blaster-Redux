@@ -9,7 +9,7 @@ wip = False
 #FastEagle -- lead designer,ideas
 #marronCapybara4011 -- lead programmer,ideas
 #connor -- playtester :)
-#RITISCOL-random programmer
+#RITISCOLL-random programmer
 
 #the leaderboard is farther down :)
 
