@@ -1,4 +1,5 @@
 from cmu_graphics import *
+import cmu_graphics
 ##### -- Asteroid Blaster Redux -- #####
 ###
 #only turn on when update is still in work
@@ -287,6 +288,8 @@ wip = False
 #[mc4011]: ok i made it visual :)
 #[mc4011]: i fixed the heatwaves staying on the main menu
 #[mc4011]: also thx for setting up the mobile button on every menu!
+#[system]: RTISCOLL has joined the chat
+#[RTISCOLL]: hi thx for letting me code on this game *cough* i will try to not break it
 
 # ----Asteroid  Designs/Types------#
 ###
@@ -359,6 +362,7 @@ currencyEarnedAmt = Label(0, 305, 350, fill='white', bold=True, font='orbitron',
 app.lost = False
 
 app.stepsPerSecond = 30
+app.showFontWarnings = False
 
 #settings
 #===========================#
@@ -2870,4 +2874,5 @@ def onStep():
         app.wait += 1
 #===============================================================================================
 
-cmu_graphics.run()
+from cmu_graphics.cmu_graphics import run
+run()
