@@ -1,5 +1,6 @@
 from cmu_graphics import *
 import cmu_graphics
+import webbrowser
 ##### -- Asteroid Blaster Redux -- #####
 ###
 #only turn on when update is still in work
@@ -10,7 +11,7 @@ wip = False
 #FastEagle -- lead designer,ideas
 #marronCapybara4011 -- lead programmer,ideas
 #connor -- playtester :)
-#RITISCOLL-random programmer
+#RITSCOLL-random programmer
 
 #the leaderboard is farther down :)
 
@@ -361,7 +362,6 @@ currencyEarnedAmt = Label(0, 305, 350, fill='white', bold=True, font='orbitron',
     
 app.lost = False
 
-app.stepsPerSecond = 30
 app.showFontWarnings = False
 
 #settings
@@ -417,6 +417,10 @@ bossasteroidModel = Star(550, random.randint(40, 360), random.randint(95, 150), 
 bossasteroidModel.health = 1000
 bossasteroidModel.active = False
 
+# pause screen
+pauseLabel = Label('Game Paused', 200, 200, fill='white', font='orbitron', size=20, bold=True, opacity=0)
+pauseBackground = Rect(0, 0, 400, 400, fill=gradient('black', 'black', 'red'), opacity=50, visible=False)
+
 #misc groups
 explosions = Group()
 lasers = Group()
@@ -444,8 +448,8 @@ playerhealthModel = Rect(160, 160, 60, 15, fill='red')
 playerhealthBorder = Rect(157,157,66,21,fill=None,border='green',borderWidth = 2,dashes=True)
 healthbar = Rect(160, 160, 60, 15, fill='lime')
 
-def moonrocks_give_1000():
-    app.moonrocks += 1000
+def moonrocks_give(num):
+    app.moonrocks += num
 
 def placeex(x,y):
     if not app.ldmtog:
@@ -553,8 +557,6 @@ w = Label('update in progress',200,200,size=35,fill='white',font='orbitron',bold
 app.in_menu = True
 
 menuBackground = Rect(0,0,400,400)
-#rishi
-#do not
 
 app.starAmount = 100
 menuStars = Group()
@@ -739,11 +741,13 @@ cLabel = Label('Credits', 200, 50, fill='white', border='grey', font='orbitron',
 Credits1 = Label('marronCapybara4011: Programmer, ideas', 200, 120, fill='white', border='grey', font='orbitron', bold=True, size=17.5, borderWidth=1.5, rotateAngle=0, opacity=0)
 Credits2 = Label('FastEagle: Designer, ideas', 200, 160, fill='white', border='grey', font='orbitron', bold=True, size=17.5, borderWidth=1.5, rotateAngle=0, opacity=0)
 Credits3 = Label('red_Immune_Cell-_-C2D7M9_1472: ideas', 200, 200, fill='white', border='grey', font='orbitron', bold=True, size=16, borderWidth=1.5, rotateAngle=0, opacity=0)
-Credits4 = Label('blueOtter2801: Website Developer', 200, 240, fill='white', border='grey', font='orbitron', bold=True, size=16, borderWidth=1.5, rotateAngle=0, opacity=0)
+Credits4 = Label('blueOtter2801: Github Developer', 200, 240, fill='white', border='grey', font='orbitron', bold=True, size=16, borderWidth=1.5, rotateAngle=0, opacity=0)
 
+formUrl = 'https://tinyurl.com/submitformblueotter'
+formLink = Label(formUrl, 200, 200, fill='lightBlue', border='grey', font='orbitron', bold=True, size=16, borderWidth=1.5)
 formLab = Group(
     Label('to submit your score, follow this link:',200,180,fill='white', border='grey', font='orbitron', bold=True, size=16, borderWidth=1.5),
-    Label('https://tinyurl.com/submitformblueotter',200,200,fill='white', border='grey', font='orbitron', bold=True,size=16, borderWidth=1.5),
+    formLink,
     )
 formLab.opacity = 0
 
@@ -1205,24 +1209,25 @@ if ingamemenu.visible == True:
 #===========================
 
 def firelaser(x,y):
-    if not app.charged:
-        las = Rect(800, 800, 20, 10,fill='red')
-        las.centerX,las.centerY = starship.centerX, starship.centerY
-        lasers.add(las)
-        las.rotateAngle = angleTo(las.centerX, las.centerY,x,y)-90
-        las.shot=True
-        las.dx=cos(radians(las.rotateAngle))
-        las.dy=sin(radians(las.rotateAngle))
-        las.time=50
-    else:
-        las = Rect(800, 800, 20, 10,fill=gradient('red','orange',start='left'))
-        las.centerX,las.centerY = starship.centerX, starship.centerY
-        lasers.add(las)
-        las.rotateAngle = angleTo(las.centerX, las.centerY,x,y)-90
-        las.shot=True
-        las.dx=cos(radians(las.rotateAngle))*1.25
-        las.dy=sin(radians(las.rotateAngle))*1.25
-        las.time=50
+    if not app.paused:
+        if not app.charged:
+            las = Rect(800, 800, 20, 10,fill='red')
+            las.centerX,las.centerY = starship.centerX, starship.centerY
+            lasers.add(las)
+            las.rotateAngle = angleTo(las.centerX, las.centerY,x,y)-90
+            las.shot=True
+            las.dx=cos(radians(las.rotateAngle))
+            las.dy=sin(radians(las.rotateAngle))
+            las.time=50
+        else:
+            las = Rect(800, 800, 20, 10,fill=gradient('red','orange',start='left'))
+            las.centerX,las.centerY = starship.centerX, starship.centerY
+            lasers.add(las)
+            las.rotateAngle = angleTo(las.centerX, las.centerY,x,y)-90
+            las.shot=True
+            las.dx=cos(radians(las.rotateAngle))*1.25
+            las.dy=sin(radians(las.rotateAngle))*1.25
+            las.time=50
 
 #####score values
 score = Label(0, 200, 15, fill='white', bold=True, font='orbitron', size=20, borderWidth=1)
@@ -1233,6 +1238,9 @@ app.moonrocks = 0
 keey = set()
 def onMousePress(mx, my):
     if app.in_menu:
+        if app.form and formLink.opacity != 0 and formLink.hits(mx, my):
+            if not webbrowser.open(formUrl):
+                print('Could not open the score submission link.')
         if (tB1.contains(mx,my) and tB1.opacity != 0):
             app.dif = True
             app.led = False
@@ -1452,7 +1460,7 @@ app.f3 = False
 app.f4 = False
 app.btmm = False
 
-app.keybinds = ['enter','q','e','space','backspace','w','s']
+app.keybinds = ['enter','q','e','space','backspace','w','s','escape']
 
 def onMouseMove(mx, my):
     m.centerX,m.centerY = mx,my
@@ -1499,6 +1507,10 @@ def onKeyPress(key):
                 pctvcm.add(spritePockVac)
                 app.pctcd = True
                 print('pct')
+        if key == app.keybinds[7]:
+            # make pause screen
+            app.paused = not app.paused
+            
             
     else:
         if key == app.keybinds[4]:
@@ -2872,7 +2884,16 @@ def onStep():
         if app.plr_health < 0:
             lose()
         app.wait += 1
+        if app.paused:
+            pauseLabel.opacity = 100
+            pauseBackground.opacity = 100
+            app.stepsPerSecond = 0
+        else:
+            pauseLabel.opacity = 0
+            pauseBackground.opacity = 0
+            app.stepsPerSecond = 30
 #===============================================================================================
+        
 
 from cmu_graphics.cmu_graphics import run
 run()
